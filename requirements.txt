@@ -1,5 +1,0 @@
-shiny
-querychat
-chatlas
-seaborn
-python-dotenv

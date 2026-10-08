@@ -9,10 +9,12 @@ runs it against the Titanic dataset, and updates the table.
 
 ## Setup
 
+Requires [uv](https://docs.astral.sh/uv/).
+
 ```bash
-pip install -r requirements.txt
+uv sync                  # creates .venv from pyproject.toml + uv.lock
 cp .env.example .env     # paste your Groq key into GROQ_API_KEY
-shiny run app.py
+uv run shiny run app.py
 ```
 
 Then open http://127.0.0.1:8000/.
