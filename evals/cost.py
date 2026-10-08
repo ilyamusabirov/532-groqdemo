@@ -19,6 +19,8 @@ PRICES = {  # $ per 1M tokens: input, output, cached-input (50% off on gpt-oss; 
     "openai/gpt-oss-20b": (0.075, 0.30, 0.0375),
     "openai/gpt-oss-120b": (0.15, 0.60, 0.075),
     "claude-haiku-4-5": (1.00, 5.00, 0.10),   # Anthropic list price; cache writes (1.25x) ignored, small
+    "gpt-5.4-mini": (0.75, 4.50, 0.075),      # OpenAI list price, cached input 90% off
+    "gpt-5.4-nano": (0.20, 1.25, 0.02),
 }
 # measured per querychat request: api_calls, input (uncached), output, cached input
 PER_REQUEST = {
@@ -27,6 +29,8 @@ PER_REQUEST = {
     "openai/gpt-oss-20b": dict(calls=2.2, inp=1440, out=1422, cached=7232),
     "openai/gpt-oss-120b": dict(calls=2.2, inp=5044, out=466, cached=3584),
     "claude-haiku-4-5": dict(calls=2.5, inp=1100, out=300, cached=12000),  # chatlas 5-min prompt cache on
+    "gpt-5.4-mini": dict(calls=3.0, inp=1500, out=200, cached=7000),       # OpenAI automatic prompt caching
+    "gpt-5.4-nano": dict(calls=3.3, inp=1800, out=250, cached=8000),
 }
 FREE_TIER = dict(rpm=30, rpd=1000, tpm=8_000, tpd=200_000)
 DEV_TIER = dict(rpm=1000, tpm=250_000)
