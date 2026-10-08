@@ -35,13 +35,15 @@ with a `GITHUB_TOKEN`, or `ChatAnthropic()` with an `ANTHROPIC_API_KEY`.
 ## Evals: what we found
 
 **Results** (4 Groq models × 4 prompt configs × 58 Titanic phrasings × 3 epochs, 3,180 runs; [full report](https://ilyamusabirov.github.io/532-groqdemo/eval-report.html)).
-qwen3.8-27b is the most reliable querychat driver (tool choice 0.84, correct filter SQL 0.91, 2% API errors);
-`data_description` lifts vocabulary-trap filters from ~0.6-0.8 to 0.8-1.0; the query-forcing `extra_instructions`
-cut hallucinated stats by two thirds. gpt-oss-120b looks bad mostly because Groq rejects a third of its tool calls
-(querychat's `collapsed` argument is declared required but the prompt says to omit it).
+qwen3.8-27b is the most reliable querychat driver (tool choice 0.91, correct filter SQL 0.98, template followed 0.97,
+0 API errors in 795 requests); `data_description` lifts vocabulary-trap filters from 0.82 to 0.96 on average; the
+query-forcing `extra_instructions` raise honest stats on qwen3.8 from 70% to 89% of replies. gpt-oss-120b looks bad
+mostly because Groq rejects a third of its tool calls (querychat's `collapsed` argument is declared required but the
+prompt says to omit it).
 
-**Cost** ([details](https://ilyamusabirov.github.io/532-groqdemo/cost.html)). The matrix cost about $26, $24 of it on
-Qwen: a querychat message is ~3 calls × ~4k-token prompt and Groq caches prompts only on gpt-oss. Per message:
+**Cost** ([details](https://ilyamusabirov.github.io/532-groqdemo/cost.html)). The matrix cost about $17, $16 of it on
+Qwen: a querychat message is ~3 calls × ~4k-token prompt and Groq caches prompts only on gpt-oss. The same matrix run
+3× faster cost $26, because 429-retried requests are billed too. Per message:
 qwen3.8 $0.0115, gpt-oss-20b $0.0008. 150 students × 120 messages: $264 on qwen3.8, $17 on gpt-oss-20b.
 
 **Recommendation for a class.** Free-tier keys cannot run querychat: one message (9-13k tokens) exceeds the

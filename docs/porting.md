@@ -85,7 +85,8 @@ One querychat message is ~3 API calls carrying the ~4.3k-token system prompt eac
 | openai/gpt-oss-120b | $0.0013 | $10 | $29 | $73 |
 
 Qwen is 10× dearer than gpt-oss because Groq caches prompts only on gpt-oss and Qwen output is $3–4/M.
-The full eval matrix (3 epochs, 4 models, ~3,200 scored runs) cost about $26, $24 of it Qwen.
+The full eval matrix (3 epochs, 4 models, ~3,200 scored runs) cost about $17, $16 of it Qwen, when paced
+at the rate cap; run 3× faster it cost $26, because requests retried after a 429 are billed as well.
 
 **Free-tier keys do not work for querychat.** The free tier allows 8k tokens/min and 200k/day; one querychat
 request is 9–13k tokens, so a student on a free key gets 429s on the first message and ~15 requests a day.

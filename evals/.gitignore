@@ -1,3 +1,4 @@
 logs/
 results/*.log
 logs-archive/
+logs-reasoning/
