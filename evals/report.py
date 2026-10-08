@@ -83,7 +83,7 @@ def pct_table(d: pd.DataFrame, scorer: str, configs: list[str] | None = None) ->
 def md(t: pd.DataFrame) -> str:
     if isinstance(t.index, pd.MultiIndex):
         t = t.reset_index()
-    return t.to_markdown(index=not isinstance(t.index, pd.RangeIndex)) + "\n"
+    return t.to_markdown(index=not isinstance(t.index, pd.RangeIndex), missingval="") + "\n"
 
 
 def col(t: pd.DataFrame, prefix: str) -> str:
