@@ -67,7 +67,11 @@ def summarize(df: pd.DataFrame) -> str:
         vol[c] = vol[c].astype(int)
     parts.append("## Volume\n\nOne request = one user message to querychat (a sample × epoch). API calls are "
                  "approximate: the final answer plus one per tool request. Retry attempts are extra full "
-                 "conversations started after a 429.\n\n" + vol.to_markdown() + "\n")
+                 "conversations started after a 429.\n\n" + vol.to_markdown() + "\n\n"
+                 "Retries come from Groq's developer-tier cap of 250k tokens/min *per model*: a querychat request "
+                 "is ~12-13k tokens on Qwen (no prompt caching), so one key sustains ~19 Qwen requests/min. "
+                 "`MAX_SAMPLES=1` paces at that rate; higher values go faster and recover via retries. "
+                 "gpt-oss prompts are cached, which appears to count little toward the cap.\n")
     errs = df[df["error"]]
     if len(errs):
         et = errs.groupby(["model", "error_kind"]).size().unstack(fill_value=0)

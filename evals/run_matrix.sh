@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Full model × config matrix. Models run in parallel (Groq rate limits are per model),
 # configs run serially within a model. Then builds evals/results/summary.md.
-# Usage: evals/run_matrix.sh [epochs]   (default 3; ~45 min wall time at 3 epochs)
+# Usage: [MAX_SAMPLES=1|3] evals/run_matrix.sh [epochs]   (default 3 epochs, MAX_SAMPLES=1: ~1.5 h; =3: ~1 h with retries)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 EPOCHS="${1:-3}"

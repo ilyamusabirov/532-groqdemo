@@ -4,11 +4,14 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 MODEL="$1"; EPOCHS="${2:-3}"
+# MAX_SAMPLES=1 runs at Groq's 250k tokens/min per-model cap with almost no 429 retries (slow, clean).
+# MAX_SAMPLES=3 is ~2-3x faster but pays for it with retries (see evals/README.md, "Rate limits").
+MAX_SAMPLES="${MAX_SAMPLES:-1}"
 for config in baseline datadesc format format_query; do
   uv run inspect eval evals/qc_eval.py -T model="$MODEL" -T config="$config" -T dataset=titanic \
-    --epochs "$EPOCHS" --log-dir evals/logs --max-samples 3 --display plain
+    --epochs "$EPOCHS" --log-dir evals/logs --max-samples "$MAX_SAMPLES" --display plain
 done
 for config in baseline format format_query; do
   uv run inspect eval evals/qc_eval.py -T model="$MODEL" -T config="$config" -T dataset=crashes \
-    --epochs "$EPOCHS" --log-dir evals/logs --max-samples 3 --display plain
+    --epochs "$EPOCHS" --log-dir evals/logs --max-samples "$MAX_SAMPLES" --display plain
 done

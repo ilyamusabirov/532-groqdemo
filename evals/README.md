@@ -27,8 +27,18 @@ evals/run_matrix.sh 3
 uv run python evals/report.py              # -> evals/results/summary.md + summary.csv
 ```
 
-Keep `--max-samples` at 3 or so: every request carries the ~4.5k-token querychat system prompt and Groq's
-tokens-per-minute cap is per model. The solver retries 429s with a fresh conversation.
+## Rate limits (read before running)
+
+Groq's developer tier caps each key at **250k tokens per minute per model**. A querychat request is ~3 API calls
+that each resend the ~4k-token system prompt: ~12-13k tokens on Qwen (uncached), ~9-10k on gpt-oss of which
+most is cached. That is ~19 Qwen requests per minute per key. The runner's `MAX_SAMPLES` sets concurrency:
+
+- `MAX_SAMPLES=1` (default): paces at the cap, almost no retries, full matrix ~1.5 h.
+- `MAX_SAMPLES=3`: ~1 h, but a third of Qwen requests get a 429 and are retried; retries are counted in the report.
+
+The solver retries 429s up to 6 times with a fresh conversation and the server's hinted wait. Models have separate
+caps, so `run_matrix.sh` runs models in parallel and configs serially. The **free tier (8k tokens/min, 200k/day)
+cannot run querychat at all**: one request exceeds the per-minute cap.
 
 ## Matrix
 
