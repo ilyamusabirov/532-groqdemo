@@ -75,8 +75,8 @@ def pct_table(d: pd.DataFrame, scorer: str, configs: list[str] | None = None) ->
     t = (d.groupby(["model", "config"])[scorer].mean() * 100).round(0).unstack("config")
     cols = [c for c in (configs or CONFIG_ORDER) if c in t.columns]
     t = t[cols]
-    n = d.groupby("config").size()
-    t.columns = [f"{c} (n={n[c] // d['model'].nunique()})" for c in cols]
+    n = d.groupby(["config", "model"]).size().groupby("config").max()  # requests per model in that column
+    t.columns = [f"{c} (n={n[c]})" for c in cols]
     t.index.name = "model"
     return t.astype("Int64")
 
@@ -110,7 +110,8 @@ def section_summary(df: pd.DataFrame) -> str:
     hon = ti[ti["honesty"].notna()]
     bad = hon.assign(bad=hon["honesty"].isin(["wrong", "unverified"])).groupby(["model", "config"])["bad"].mean().unstack("config") * 100
 
-    composite = pd.concat([tc.mean(axis=1), fr.mean(axis=1), ac.mean(axis=1)], axis=1).mean(axis=1)
+    complete = tc.notna().all(axis=1) & fr.notna().all(axis=1) & ac.notna().all(axis=1)  # models with every config run
+    composite = pd.concat([tc.mean(axis=1), fr.mean(axis=1), ac.mean(axis=1)], axis=1).mean(axis=1)[complete]
     best_model = composite.idxmax(); best_tc = int(tc.loc[best_model, col(tc, "format_query")])
     lines = [
         "## Summary\n",
@@ -122,10 +123,10 @@ def section_summary(df: pd.DataFrame) -> str:
         f"- **`data_description` works.** On the vocabulary traps (children, steerage, travelling alone) adding it moved "
         f"correct filters from {int(traps[col(traps, 'baseline')].mean())}% to "
         f"{int(traps[col(traps, 'datadesc')].mean())}% averaged over models"
-        + "".join(f"; {m}: {traps.loc[m, col(traps, 'baseline')]}→{traps.loc[m, col(traps, 'datadesc')]}" for m in traps.index) + ".",
+        + "".join(f"; {m}: {traps.loc[m, col(traps, 'baseline')]}→{traps.loc[m, col(traps, 'datadesc')]}" for m in traps.dropna().index) + ".",
         f"- **Telling the model to query changes where stats come from.** Share of filter replies with wrong or unverified "
         f"numbers, format-only → query-forcing template: "
-        + "; ".join(f"{m}: {bad.loc[m, 'format']:.0f}%→{bad.loc[m, 'format_query']:.0f}%" for m in bad.index)
+        + "; ".join(f"{m}: {bad.loc[m, 'format']:.0f}%→{bad.loc[m, 'format_query']:.0f}%" for m in bad.dropna().index)
         + ". Replies that give no numbers at all are counted separately as `silent` (section 6).",
         f"- **Questions are mostly answered right** ({int(ac[col(ac, 'baseline')].mean())}% baseline average), the misses are "
         f"models answering from memory without a query.",
