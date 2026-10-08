@@ -13,11 +13,12 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-PRICES = {  # $ per 1M tokens: input, output, cached-input (50% off on gpt-oss only)
+PRICES = {  # $ per 1M tokens: input, output, cached-input (50% off on gpt-oss; Anthropic cache read = 10%)
     "qwen/qwen3.8-27b": (0.80, 4.00, None),
     "qwen/qwen3.6-27b": (0.60, 3.00, None),
     "openai/gpt-oss-20b": (0.075, 0.30, 0.0375),
     "openai/gpt-oss-120b": (0.15, 0.60, 0.075),
+    "claude-haiku-4-5": (1.00, 5.00, 0.10),   # Anthropic list price; cache writes (1.25x) ignored, small
 }
 # measured per querychat request: api_calls, input (uncached), output, cached input
 PER_REQUEST = {
@@ -25,6 +26,7 @@ PER_REQUEST = {
     "qwen/qwen3.6-27b": dict(calls=2.8, inp=11922, out=334, cached=0),
     "openai/gpt-oss-20b": dict(calls=2.2, inp=1440, out=1422, cached=7232),
     "openai/gpt-oss-120b": dict(calls=2.2, inp=5044, out=466, cached=3584),
+    "claude-haiku-4-5": dict(calls=2.5, inp=1100, out=300, cached=12000),  # chatlas 5-min prompt cache on
 }
 FREE_TIER = dict(rpm=30, rpd=1000, tpm=8_000, tpd=200_000)
 DEV_TIER = dict(rpm=1000, tpm=250_000)
@@ -42,17 +44,25 @@ def request_cost(model: str, history_factor: float = 1.0) -> float:
 def matrix_cost(log_dir: Path) -> list[tuple[str, int, int, float]]:
     from inspect_ai.log import list_eval_logs, read_eval_log  # lazy: evals group only
 
-    samples, retries = {}, {}
+    samples, retries, measured = {}, {}, {}
     for info in list_eval_logs(str(log_dir)):
         log = read_eval_log(info.name, header_only=False)
         m = log.eval.metadata["groq_model"]
         for s in log.samples:
+            st = s.store or {}
             samples[m] = samples.get(m, 0) + 1
-            retries[m] = retries.get(m, 0) + ((s.store or {}).get("retries") or 0)
+            retries[m] = retries.get(m, 0) + (st.get("retries") or 0)
+            if st.get("tokens_in") or st.get("tokens_out"):  # recorded by newer solver runs
+                t = measured.setdefault(m, [0, 0, 0])
+                t[0] += st["tokens_in"]; t[1] += st["tokens_out"]; t[2] += st.get("tokens_cached", 0)
     rows = []
     for m in samples:
-        # a retried attempt re-sent roughly half a request before the 429 landed
-        usd = (samples[m] + 0.5 * retries[m]) * request_cost(m)
+        pin, pout, pcache = PRICES.get(m, (0, 0, None))
+        if m in measured:  # actual usage
+            ti, to, tc = measured[m]
+            usd = (ti * pin + to * pout + (tc * pcache if pcache else 0)) / 1e6
+        else:  # estimate; a retried attempt re-sent roughly half a request before the 429 landed
+            usd = (samples[m] + 0.5 * retries[m]) * request_cost(m)
         rows.append((m, samples[m], retries[m], usd))
     return rows
 
