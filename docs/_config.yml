@@ -1,0 +1,5 @@
+title: 532-groqdemo
+description: querychat on Groq — demo, porting guide and eval report for DSCI 532
+theme: jekyll-theme-minimal
+markdown: kramdown
+exclude: [superpowers]

@@ -1,22 +1,32 @@
 [project]
 name = "groqdemo"
-description = "querychat on Groq (Qwen) — minimal Shiny for Python demo for DSCI 532"
-version = "0.1.0"
+version = "0.2.0"
+description = "querychat on Groq (Qwen / gpt-oss): a one-file Shiny for Python demo plus an inspect_ai eval suite, for DSCI 532"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Ilya Musabirov" }]
 requires-python = ">=3.12"
+keywords = ["shiny", "querychat", "chatlas", "groq", "inspect-ai", "teaching"]
 dependencies = [
-    "chatlas>=0.23.0",
-    "python-dotenv>=1.2.4",
-    "querychat>=0.9.0",
-    "seaborn>=0.13.2",
-    "shiny>=1.8.0",
+    "chatlas>=0.23.0",      # ChatGroq client used by app.py and the eval solver
+    "python-dotenv>=1.2.4", # GROQ_API_KEY from .env
+    "querychat>=0.9.0",     # the thing under test
+    "seaborn>=0.13.2",      # titanic dataset
+    "shiny>=1.8.0",         # the demo app
 ]
+
+[project.urls]
+Homepage = "https://ilyamusabirov.github.io/532-groqdemo/"
+Repository = "https://github.com/ilyamusabirov/532-groqdemo"
+"Eval report" = "https://ilyamusabirov.github.io/532-groqdemo/eval-report.html"
 
 [dependency-groups]
 evals = [
-    "duckdb>=1.5.6",
-    "inspect-ai>=0.3.277",
-    "pytest>=9.1.1",
-    "tabulate>=0.10.0",
+    "duckdb>=1.5.6",        # runs model SQL against the dataframes for scoring
+    "inspect-ai>=0.3.277",  # eval framework (task / solver / scorer / logs)
+    "pandas>=2.0",          # dataframes and the report tables
+    "pytest>=9.1.1",        # evals/tests
+    "tabulate>=0.10.0",     # pandas .to_markdown()
 ]
 
 [tool.pytest.ini_options]
@@ -25,6 +35,7 @@ testpaths = ["evals/tests"]
 
 [tool.uv]
 package = true
+default-groups = ["evals"]  # `uv sync` installs the evals too; the demo alone: `uv sync --no-default-groups`
 
 [build-system]
 requires = ["hatchling"]

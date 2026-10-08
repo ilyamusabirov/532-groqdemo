@@ -15,4 +15,5 @@ done
 status=0
 for pid in "${pids[@]}"; do wait "$pid" || status=1; done
 uv run python evals/report.py
+{ printf -- '---\ntitle: Eval report\n---\n\n'; cat evals/results/summary.md; } > docs/eval-report.md
 exit $status

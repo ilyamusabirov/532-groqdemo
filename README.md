@@ -1,5 +1,7 @@
 # 532-groqdemo
 
+**Site:** <https://ilyamusabirov.github.io/532-groqdemo/> — instructions, [porting guide](https://ilyamusabirov.github.io/532-groqdemo/porting.html), [eval report](https://ilyamusabirov.github.io/532-groqdemo/eval-report.html).
+
 Minimal [querychat](https://posit-dev.github.io/querychat/) demo running on
 [Groq](https://console.groq.com/) with an open-weight Qwen model. DSCI 532.
 
@@ -12,7 +14,7 @@ runs it against the Titanic dataset, and updates the table.
 Requires [uv](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync                  # creates .venv from pyproject.toml + uv.lock
+uv sync                  # creates .venv from pyproject.toml + uv.lock (evals included)
 cp .env.example .env     # paste your Groq key into GROQ_API_KEY
 uv run shiny run app.py
 ```
@@ -38,7 +40,8 @@ against four Groq models under the prompt customizations from the lecture (`data
 numbers came from a query or from memory. See [`evals/README.md`](evals/README.md).
 
 ```bash
-uv sync --all-groups
 uv run pytest                 # scoring logic, no API calls
 evals/run_matrix.sh 3         # full matrix (~45 min), then evals/results/summary.md
 ```
+
+Porting other DSCI 532 demos to Groq, which models to use, and known quirks: see [`CLAUDE.md`](CLAUDE.md).
