@@ -81,6 +81,20 @@ and `who='woman'` (205); "children" accepts `who='child'` or `age < 16` (both 83
 - `cost.py` — per-request token cost, matrix spend from logs, student-cohort scenarios, rate-limit feasibility
 - `run_model.sh`, `run_matrix.sh` — runners
 
+## Experiment: Qwen reasoning off (`-T reasoning=none`)
+
+Groq exposes `reasoning_effort` for Qwen (none / low / medium / high). Same cell (qwen3.8-27b, `format_query`,
+Titanic, 3 epochs, paced at the cap), default vs `none`:
+
+| | tool choice | filter SQL | answers | template | honest stats | output tok/req | s/req |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| default | 91% | 98% | 94% | 97% | 90% | 266 | 2.7 |
+| `none` | 91% | 99% | 94% | 91% | 94% | 267 | 2.7 |
+
+No difference that matters and no token saving: on querychat's short tool-driven turns Groq's default already
+spends no visible reasoning tokens, so the "Qwen 3.8 overthinks" caveat from coding benchmarks does not apply here.
+`none` trades a little template adherence for a few more silent replies. Leave the default.
+
 ## Known provider quirks (findings, not bugs in this suite)
 
 - Groq validates tool-call arguments against the schema strictly. querychat marks `collapsed` as required

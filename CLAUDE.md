@@ -119,7 +119,7 @@ org key with the class spread across models.
    qwen3.8 never. Wrap `.chat()` in try/except in demos.
 2. DuckDB string comparison is case-sensitive: `class = 'FIRST'` returns zero rows silently. List real values
    in `data_description`.
-3. Qwen emits reasoning content; show only `ContentText` parts of the last turn (`evals/solver.py`).
+3. Qwen reasoning: `reasoning_effort="none"` changes nothing measurable on querychat (same scores, same ~266 output tokens/request); keep the default. It emits reasoning content; show only `ContentText` parts of the last turn (`evals/solver.py`).
 4. "women" on Titanic is ambiguous (`sex='female'` 233 vs `who='woman'` 205). Say "female" in demos.
 
 ## Constraints

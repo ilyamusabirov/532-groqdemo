@@ -102,7 +102,7 @@ org key with the class spread across models.
    demos, or prefer qwen3.8.
 2. **Case-sensitive strings.** Models sometimes write `class = 'FIRST'`; DuckDB returns zero rows silently.
    `data_description` listing the actual values reduces this.
-3. **Qwen reasoning text.** Qwen models emit a reasoning block; chatlas keeps it as separate content. To show
+3. **Qwen reasoning text.** Turning reasoning off (`reasoning_effort="none"`) changes nothing measurable on querychat: same scores, same ~266 output tokens per request. Keep the default. Qwen models emit a reasoning block; chatlas keeps it as separate content. To show
    only the answer, take `ContentText` parts of the last turn (see `evals/solver.py`).
 4. **"women" is ambiguous** on Titanic: `sex='female'` (233 survivors) vs `who='woman'` (205). Say "female"
    in demos, or treat both as right in checks.
