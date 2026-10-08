@@ -1,5 +1,17 @@
 # querychat × Groq eval summary
 
+## Volume
+
+One request = one user message to querychat (a sample × epoch). API calls are approximate: the final answer plus one per tool request. Retry attempts are extra full conversations started after a 429.
+
+| model               |   requests |   api_calls |   retry_attempts |   errors |   error_rate |
+|:--------------------|-----------:|------------:|-----------------:|---------:|-------------:|
+| openai/gpt-oss-120b |        795 |        1782 |               13 |      289 |        0.364 |
+| openai/gpt-oss-20b  |        795 |        2132 |              158 |       55 |        0.069 |
+| qwen/qwen3.6-27b    |        795 |        2394 |              959 |       74 |        0.093 |
+| qwen/qwen3.8-27b    |        795 |        2342 |              812 |       16 |        0.02  |
+| **total**           |       3180 |        8650 |             1942 |      434 |        0.136 |
+
 ## API errors (all datasets and configs)
 
 An errored sample scores INCORRECT on `tool_choice` and on its family scorer, so models with many errors are penalised for provider-side failures, not only for wrong behaviour. `groq_schema_collapsed` is a querychat × Groq interop bug: querychat declares the `collapsed` argument of `querychat_query` as required while its prompt tells the model it may omit it; Groq validates tool arguments strictly and rejects the call.

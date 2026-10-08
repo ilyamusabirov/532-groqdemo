@@ -45,6 +45,8 @@ def load_rows(log_dir: Path) -> pd.DataFrame:
                 "epoch": s.epoch,
                 "error": bool((s.store or {}).get("error")),
                 "error_kind": _error_kind((s.store or {}).get("error")),
+                "api_calls": 1 + len((s.store or {}).get("tools") or []),  # final answer + one per tool request
+                "retries": (s.store or {}).get("retries") or 0,
                 "honesty": (s.scores.get("number_honesty").metadata or {}).get("verdict") if s.scores.get("number_honesty") else None,
             }
             for name in SCORERS:
@@ -56,6 +58,16 @@ def load_rows(log_dir: Path) -> pd.DataFrame:
 
 def summarize(df: pd.DataFrame) -> str:
     parts = []
+    vol = df.groupby("model").agg(requests=("error", "size"), api_calls=("api_calls", "sum"),
+                                  retry_attempts=("retries", "sum"), errors=("error", "sum"))
+    vol["error_rate"] = (vol["errors"] / vol["requests"]).round(3)
+    total = vol.sum(numeric_only=True); total["error_rate"] = round(total["errors"] / total["requests"], 3)
+    vol.loc["**total**"] = total
+    for c in ["requests", "api_calls", "retry_attempts", "errors"]:
+        vol[c] = vol[c].astype(int)
+    parts.append("## Volume\n\nOne request = one user message to querychat (a sample × epoch). API calls are "
+                 "approximate: the final answer plus one per tool request. Retry attempts are extra full "
+                 "conversations started after a 429.\n\n" + vol.to_markdown() + "\n")
     errs = df[df["error"]]
     if len(errs):
         et = errs.groupby(["model", "error_kind"]).size().unstack(fill_value=0)
