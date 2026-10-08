@@ -15,6 +15,18 @@ from inspect_ai.log import list_eval_logs, read_eval_log
 SCORERS = ["tool_choice", "filter_rows", "answer_correct", "format_adherence", "number_honesty"]
 
 
+def _error_kind(err: str | None) -> str | None:
+    if not err:
+        return None
+    if "collapsed" in err:
+        return "groq_schema_collapsed"   # querychat marks `collapsed` required; model omitted it; Groq rejects
+    if "validation failed" in err or "Failed to parse tool call" in err or "Failed to call a function" in err:
+        return "tool_call_malformed"
+    if "RateLimit" in err:
+        return "rate_limit_exhausted"    # after the solver's retries
+    return err.split(":")[0][:40]
+
+
 def load_rows(log_dir: Path) -> pd.DataFrame:
     rows = []
     for info in list_eval_logs(str(log_dir)):
@@ -32,6 +44,7 @@ def load_rows(log_dir: Path) -> pd.DataFrame:
                 "trap": s.metadata.get("trap"),
                 "epoch": s.epoch,
                 "error": bool((s.store or {}).get("error")),
+                "error_kind": _error_kind((s.store or {}).get("error")),
                 "honesty": (s.scores.get("number_honesty").metadata or {}).get("verdict") if s.scores.get("number_honesty") else None,
             }
             for name in SCORERS:
@@ -43,6 +56,15 @@ def load_rows(log_dir: Path) -> pd.DataFrame:
 
 def summarize(df: pd.DataFrame) -> str:
     parts = []
+    errs = df[df["error"]]
+    if len(errs):
+        et = errs.groupby(["model", "error_kind"]).size().unstack(fill_value=0)
+        parts.append("## API errors (all datasets and configs)\n\nAn errored sample scores INCORRECT on "
+                     "`tool_choice` and on its family scorer, so models with many errors are penalised for "
+                     "provider-side failures, not only for wrong behaviour. `groq_schema_collapsed` is a "
+                     "querychat × Groq interop bug: querychat declares the `collapsed` argument of "
+                     "`querychat_query` as required while its prompt tells the model it may omit it; Groq "
+                     "validates tool arguments strictly and rejects the call.\n\n" + et.to_markdown() + "\n")
     for dataset, d in df.groupby("dataset"):
         acc = d.groupby(["model", "config"])[SCORERS].mean().round(2)
         n = d.groupby(["model", "config"]).size().rename("n")

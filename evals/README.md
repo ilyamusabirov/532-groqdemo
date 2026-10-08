@@ -74,6 +74,8 @@ and `who='woman'` (205); "children" accepts `who='child'` or `age < 16` (both 83
 
 - Groq validates tool-call arguments against the schema strictly. querychat marks `collapsed` as required
   but its prompt says the model may omit it; when gpt-oss does omit it, Groq rejects the call
-  (`Tool call validation failed ... missing properties: 'collapsed'`). Recorded as an API error.
+  (`Tool call validation failed ... missing properties: 'collapsed'`). Recorded as an API error. In the
+  2026-10-07 run this hit gpt-oss-120b 289 times, qwen3.6 52, gpt-oss-20b 40, qwen3.8 never, so
+  gpt-oss-120b's low scores are mostly this, not wrong behaviour. See `results/summary.md`.
 - Qwen models sometimes write `class = 'FIRST'`; DuckDB string comparison is case-sensitive, so the filter
   returns zero rows. `filter_rows` catches it.
