@@ -232,6 +232,7 @@ def section_details(df: pd.DataFrame) -> str:
         crt = cr.groupby(["model", "config"])[["tool_choice", "filter_rows", "answer_correct", "number_honesty"]].mean() * 100
         crt = crt.round(0).astype("Int64").reindex(columns=["tool_choice", "filter_rows", "answer_correct", "number_honesty"])
         crt.columns = ["tool choice %", "filter SQL %", "answers %", "honest stats %"]
+        crt = crt.astype(object).where(crt.notna(), "")
         crt = crt.reset_index().sort_values(["model", "config"], key=lambda c: c.map(lambda v: CONFIG_ORDER.index(v) if v in CONFIG_ORDER else v)).reset_index(drop=True)
         hc = cr[cr["honesty"].notna()].groupby(["model", "config"])["honesty"].value_counts().unstack(fill_value=0)
         out.append("### 7. Fake data: does anything get invented?\n\n*The crashes table is unknown to every model, so a stated "
