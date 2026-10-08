@@ -29,8 +29,8 @@ The only provider-specific line is in `app.py`:
 client=ChatGroq(model="qwen/qwen3.8-27b"),
 ```
 
-Any other chatlas provider works the same way, e.g. `ChatGithub(model="gpt-4.1-mini")`
-with a `GITHUB_TOKEN`, or `ChatAnthropic()` with an `ANTHROPIC_API_KEY`.
+Any other chatlas provider works the same way, e.g. `ChatAnthropic(model="claude-haiku-4-5")` with an
+`ANTHROPIC_API_KEY`. Not `ChatGithub`: GitHub Models was retired on 2026-07-30 and chatlas now refuses to build it.
 
 ## Evals: what we found
 

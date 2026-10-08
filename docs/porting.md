@@ -9,6 +9,13 @@ Mirrors the guide in the repo's `CLAUDE.md`. Everything in the lecture code goes
 plus an API key. Groq's OpenAI-compatible endpoint means tool calling, streaming and structured output
 work as they do elsewhere.
 
+## GitHub Models is gone (retired 2026-07-30)
+
+Every lecture 5 app and most lecture 6/7 scripts use `ChatGithub(model="gpt-4.1-mini")`. chatlas ≥ 0.23 raises
+`RuntimeError: ChatGithub() is defunct because GitHub Models was retired on 2026-07-30` on construction, so those
+files no longer run at all. Replace with `ChatGroq(model="qwen/qwen3.8-27b")` (this repo) or, for a free tier,
+`ChatGoogle()` with a `GOOGLE_API_KEY`. The `GITHUB_TOKEN` lines in `.env.example` files are dead.
+
 ## Which model
 
 | use | model id | why |

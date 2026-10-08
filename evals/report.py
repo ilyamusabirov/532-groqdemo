@@ -49,7 +49,8 @@ def load_rows(log_dir: Path) -> tuple[pd.DataFrame, dict]:
         for s in log.samples:
             st = s.store or {}
             row = {
-                "model": SHORT.get(m.get("groq_model", "?"), m.get("groq_model", "?")),
+                "model": SHORT.get(m.get("groq_model", "?"), m.get("groq_model", "?").split("/")[-1])
+                         + ("" if m.get("provider", "groq") == "groq" else f" @{m['provider']}"),
                 "config": m.get("config", "?"), "dataset": m.get("dataset", "?"),
                 "intent": s.metadata.get("intent"), "family": s.metadata.get("family"),
                 "trap": bool(s.metadata.get("trap")), "epoch": s.epoch, "input": s.input,
