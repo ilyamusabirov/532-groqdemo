@@ -68,6 +68,7 @@ and `who='woman'` (205); "children" accepts `who='child'` or `age < 16` (both 83
 - `scorers.py` — inspect wrappers around `checks.py`
 - `qc_eval.py` — the `@task`
 - `report.py` — logs → model × config × scorer table
+- `cost.py` — per-request token cost, matrix spend from logs, student-cohort scenarios, rate-limit feasibility
 - `run_model.sh`, `run_matrix.sh` — runners
 
 ## Known provider quirks (findings, not bugs in this suite)

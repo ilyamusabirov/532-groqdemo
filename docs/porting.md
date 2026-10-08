@@ -72,6 +72,26 @@ No `pip install`, no `requirements.txt`: dependencies live in `pyproject.toml`, 
   keep `--max-samples 3` in evals and let the solver's retries absorb it.
 - Different models have separate caps, so parallel runs across models are free; serial within a model.
 
+### Cost (see `evals/cost.py`, published at <https://ilyamusabirov.github.io/532-groqdemo/cost.html>)
+
+One querychat message is ~3 API calls carrying the ~4.3k-token system prompt each time. Measured per request
+(2026-10-07, Titanic, query-forcing template; list prices 2026-09, verify in console):
+
+| model | $/request | 150 students × 40 req | × 120 req | × 300 req |
+|---|---:|---:|---:|---:|
+| qwen/qwen3.8-27b | $0.0115 | $88 | $264 | $660 |
+| qwen/qwen3.6-27b | $0.0082 | $62 | $185 | $464 |
+| openai/gpt-oss-20b | $0.0008 | $6 | $17 | $41 |
+| openai/gpt-oss-120b | $0.0013 | $10 | $29 | $73 |
+
+Qwen is 10× dearer than gpt-oss because Groq caches prompts only on gpt-oss and Qwen output is $3–4/M.
+The full eval matrix (3 epochs, 4 models, ~3,200 scored runs) cost about $26, $24 of it Qwen.
+
+**Free-tier keys do not work for querychat.** The free tier allows 8k tokens/min and 200k/day; one querychat
+request is 9–13k tokens, so a student on a free key gets 429s on the first message and ~15 requests a day.
+Students need developer-tier keys (250k tokens/min per model, ~18 Qwen requests/min per key) or a shared
+org key with the class spread across models.
+
 ## Known quirks (found by the evals)
 
 1. **Groq validates tool arguments strictly.** querychat declares `collapsed` on `querychat_query` as

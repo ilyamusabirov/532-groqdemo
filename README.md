@@ -1,6 +1,6 @@
 # 532-groqdemo
 
-**Site:** <https://ilyamusabirov.github.io/532-groqdemo/> — instructions, [porting guide](https://ilyamusabirov.github.io/532-groqdemo/porting.html), [eval report](https://ilyamusabirov.github.io/532-groqdemo/eval-report.html).
+**Site:** <https://ilyamusabirov.github.io/532-groqdemo/> — instructions, [porting guide](https://ilyamusabirov.github.io/532-groqdemo/porting.html), [eval report](https://ilyamusabirov.github.io/532-groqdemo/eval-report.html), [cost estimates](https://ilyamusabirov.github.io/532-groqdemo/cost.html).
 
 Minimal [querychat](https://posit-dev.github.io/querychat/) demo running on
 [Groq](https://console.groq.com/) with an open-weight Qwen model. DSCI 532.
