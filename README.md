@@ -1,0 +1,29 @@
+# 532-groqdemo
+
+Minimal [querychat](https://posit-dev.github.io/querychat/) demo running on
+[Groq](https://console.groq.com/) with an open-weight Qwen model. DSCI 532.
+
+Ask the sidebar things like *"Show only women who survived"* or
+*"filter to first class passengers"*. querychat turns the question into SQL,
+runs it against the Titanic dataset, and updates the table.
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env     # paste your Groq key into GROQ_API_KEY
+shiny run app.py
+```
+
+Then open http://127.0.0.1:8000/.
+
+## Switching models
+
+The only provider-specific line is in `app.py`:
+
+```python
+client=ChatGroq(model="qwen/qwen3.8-27b"),
+```
+
+Any other chatlas provider works the same way, e.g. `ChatGithub(model="gpt-4.1-mini")`
+with a `GITHUB_TOKEN`, or `ChatAnthropic()` with an `ANTHROPIC_API_KEY`.
